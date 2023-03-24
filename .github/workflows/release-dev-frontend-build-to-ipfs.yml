@@ -46,7 +46,7 @@ jobs:
   pin_build_cidv1:
     name: Pin Dev Frontend Build CIDv1
     needs: upload_build
-    runs-on: ubuntu latest
+    runs-on: ubuntu-latest
     steps:
       - name: Call Pinate API to Pin Frontend Build CIDv1
         uses: fjogeleit/http-request-action@v1
@@ -59,7 +59,7 @@ jobs:
   create_github_release:
     name: Create Github Release
     needs: upload_build
-    runs-on: ubuntu latest
+    runs-on: ubuntu-latest
     steps:
       - name: Create GitHub Release
         id: create_release
