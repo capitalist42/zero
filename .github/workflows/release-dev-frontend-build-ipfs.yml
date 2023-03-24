@@ -1,0 +1,86 @@
+name: Release Dev Frontend build to IPFS
+
+on: workflow_dispatch
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release_dev_frontend_build_ipfs:
+    name: Release Dev Frontend Build To IPFS 
+    runs-on: ubuntu-latest
+    outputs: 
+      cidv0: ${{ steps.upload_frontend_build.outputs.hash }}
+      cidv1: ${{ steps.cidv0_to_cidv1.outputs.cidv1 }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+      - id: commit
+        uses: pr-mpt/actions-commit-hash@v2
+      - name: Setup Node.js 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+      - name: Cache node modules
+        id: cache-npm
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install Dependencies
+        run: yarn install
+      - name: Build
+        run: yarn build 
+      - name: Upload Frontend Build to IPFS via Pinata
+        id: upload_frontend_build
+        uses: aquiladev/ipfs-action@master
+        with:
+          path: packages/dev-frontend/build
+          service: pinata
+          verbose: true
+          key: zero-dev-frontend-build
+          pinName: Zero Protocol Dev Frontend ${{ steps.commit.outputs.short }}
+          pinataKey: ${{ secrets.PINATA_KEY }}
+          pinataSecret: ${{ secrets.PINATA_SECRET }}
+      - name: CIDv0 to CIDv1
+        id: cidv0_to_cidv1
+        uses: Uniswap/convert-cidv0-cidv1@v1.0.0
+        with:
+          cidv0: ${{ steps.upload_frontend_build.outputs.hash }}
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.commit.outputs.short }}
+          release_name: Zero Protocol Dev Frontend Release ${{ steps.commit.outputs.short }}
+          body: |
+            **Zero Protocol Dev Frontend Mainnet gateways**:
+            - CIDv0: ${{ steps.upload_frontend_build.outputs.hash }}
+            - CIDv1: ${{ steps.cidv0_to_cidv1.outputs.cidv1 }}
+            - ${{ vars.IPFS_GATEWAY_URL }}/ipfs/${{ steps.cidv0_to_cidv1.outputs.cidv1 }}            
+            - https://gateway.pinata.cloud/ipfs/${{ steps.cidv0_to_cidv1.outputs.cidv1 }}
+            - https://cloudflare-ipfs.com/ipfs/${{ steps.cidv0_to_cidv1.outputs.cidv1 }}
+            - https://ipfs.io/ipfs/${{ steps.cidv0_to_cidv1.outputs.cidv1 }}
+            - https://${{ steps.cidv0_to_cidv1.outputs.cidv1 }}.ipfs.dweb.link/
+            - [ipfs://${{ steps.cidv0_to_cidv1.outputs.cidv1 }}/](ipfs://${{ steps.cidv0_to_cidv1.outputs.cidv1 }}/)
+  pin_dev_frontend_build_cidv1:
+    name: Pin Dev Frontend Build CIDv1
+    runs-on: ubuntu z-latest
+    steps: release_dev_frontend_build_ipfs
+      - name: Call Pinate API to Pin Frontend Build CIDv1
+        needs: 
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: 'https://api.pinata.cloud/pinning/pinByHash'
+          method: 'POST'
+          bearerToken: ${{ secrets.PINATA_JWT }}
+          customHeaders: '{"Content-Type": "application/json"}'
+          data: '{"hashToPin": ${{ jobs.release_dev_frontend_build_ipfs.outputs.cidv1 }}'
