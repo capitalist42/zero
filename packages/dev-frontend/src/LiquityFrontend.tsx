@@ -11,13 +11,14 @@ import { TransactionMonitor } from "./components/Transaction";
 import { Header } from "./components/Header";
 
 import { RiskyTrovesPage } from "./pages/RiskyTrovesPage";
+import { RedemptionPage } from "./pages/RedemptionPage";
 
 import { TroveViewProvider } from "./components/Trove/context/TroveViewProvider";
 import { StabilityViewProvider } from "./components/Stability/context/StabilityViewProvider";
 import { Nav } from "./components/Nav";
 import { AccessPage } from "./pages/AccessPage";
 import { Dashboard } from "./pages/Dashboard";
-import { ConfirmPage } from "./pages/ConfirmPage";
+import { ConfirmPage } from './pages/ConfirmPage';
 
 type LiquityFrontendProps = {
   loader?: React.ReactNode;
@@ -65,9 +66,9 @@ export const LiquityFrontend: React.FC<LiquityFrontendProps> = ({ loader }) => {
                 <Route path="/zero/liquidation">
                   <RiskyTrovesPage />
                 </Route>
-                {/* <Route path="/zero/redemption">
+                <Route path="/zero/redemption">
                   <RedemptionPage />
-                </Route> */}
+                </Route>
               </Container>
             </Flex>
           </StabilityViewProvider>
