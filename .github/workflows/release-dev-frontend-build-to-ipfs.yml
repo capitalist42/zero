@@ -83,4 +83,4 @@ jobs:
           method: 'POST'
           bearerToken: ${{ secrets.PINATA_JWT }}
           customHeaders: '{"Content-Type": "application/json"}'
-          data: '{"hashToPin": ${{ jobs.release_dev_frontend_build_ipfs.outputs.cidv1 }}'
+          data: '{"hashToPin": ${{ needs.release_dev_frontend_build_ipfs.outputs.cidv1 }}'
