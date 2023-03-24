@@ -3,7 +3,7 @@ import { Button, Text } from "theme-ui";
 
 import { WaitListSignup } from "../pages/WaitListSignup";
 import { shortenAddress } from "../utils/shortenAddress";
-import { checkAccountAccess } from "../utils/whitelist";
+// import { checkAccountAccess } from "../utils/whitelist";
 import { useLocation } from "react-router-dom";
 import { ConfirmPage } from "../pages/ConfirmPage";
 import { AccessPage } from "../pages/AccessPage";
@@ -81,27 +81,27 @@ export const WalletConnector: React.FC<WalletConnectorProps> = ({ children, load
     isWalletConnected
   } = useConnectorContext();
   const [connectionState, dispatch] = useReducer(connectionReducer, { type: "inactive" });
-  const [hasAccess, setHasAccess] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [hasAccess] = useState(true);
+  const [loading] = useState(false);
   const location = useLocation();
 
-  useEffect(() => {
-    const checkAccess = async (account: string) => {
-      setLoading(true);
-      setHasAccess(false);
-      try {
-        const { data } = await checkAccountAccess(account);
-        setHasAccess(!!data.access);
-      } catch (error) {
-        console.log("error:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (walletAddress) {
-      checkAccess(walletAddress);
-    }
-  }, [isWalletConnected, walletAddress]);
+  // useEffect(() => {
+  //   const checkAccess = async (account: string) => {
+  //     setLoading(true);
+  //     setHasAccess(false);
+  //     try {
+  //       const { data } = await checkAccountAccess(account);
+  //       setHasAccess(!!data.access);
+  //     } catch (error) {
+  //       console.log("error:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   if (walletAddress) {
+  //     checkAccess(walletAddress);
+  //   }
+  // }, [isWalletConnected, walletAddress]);
 
   useEffect(() => {
     if (isWalletConnected) {
@@ -119,9 +119,9 @@ export const WalletConnector: React.FC<WalletConnectorProps> = ({ children, load
     }
   }, [isWalletConnected, disconnectWallet, connectWallet]);
 
-  if (loading) {
-    return <>{loader}</>;
-  }
+  // if (loading) {
+  //   return <>{loader}</>;
+  // }
 
   if (location.pathname === "/zero/confirm") return <ConfirmPage />;
   if (location.pathname === "/zero/access") return <AccessPage />;
