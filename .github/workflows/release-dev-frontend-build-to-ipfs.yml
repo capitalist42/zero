@@ -24,7 +24,7 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: yarn.lock
       - name: Install Dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build 
       - name: Upload Frontend Build to IPFS via Pinata
