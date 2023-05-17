@@ -417,8 +417,8 @@ export class PopulatableEthersLiquity
       .map(({ args: { _ETH, _ZUSDLoss } }) => [decimalify(_ETH), decimalify(_ZUSDLoss)]);
 
     const [zeroReward] = stabilityPool
-      .extractEvents(logs, "ZEROPaidToDepositor")
-      .map(({ args: { _ZERO } }) => decimalify(_ZERO));
+      .extractEvents(logs, "SOVPaidToDepositor")
+      .map(({ args: { _SOV } }) => decimalify(_SOV));
 
     return {
       zusdLoss,
@@ -586,6 +586,10 @@ export class PopulatableEthersLiquity
       partialRedemptionLowerHint,
       partialRedemptionHintNICR
     ];
+  }
+
+  async findHints(trove: Trove): Promise<[string, string]> {
+    return this._findHints(trove);
   }
 
   /** {@inheritDoc @sovryn-zero/lib-base#PopulatableLiquity.openTrove} */
