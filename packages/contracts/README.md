@@ -1,5 +1,10 @@
-# @sovryn-zero/contracts
-  ZERO solidity contracts
+# @sovryn-zero/contracts  
+
+[![GitHub license](https://img.shields.io/github/license/DistributedCollective/zero)](/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/DistributedCollective/zero)](https://github.com/DistributedCollective/zero/stargazers)
+[![Zero README](https://img.shields.io/badge/readme-gray?style=flat&logo=ZeroMQ&logoColor=green&link=/README.md)](/README.md)  
+
+  Zero solidity contracts
 
 ## **Quickstart**
 
@@ -11,11 +16,21 @@
 
 ## **Project Description**  
 
-  Sovryn ZERO Solidity Contracts is a full set of ZERO solidity contracts.
-  For interaction and integration with ZERO it is recommended to use @sovryn-zero/sdk-contracts package.  
+  Sovryn Zero Solidity Contracts is a full set of Zero solidity contracts, docs and the contracts deployment .json data: ABIs and deployment addresses.  
+  For interaction and integration with Zero in solidity contracts use the ad-hoc @sovryn-zero/sdk-contracts package.  
    
 
 ## **Docs**  
+
+### Usage example
+
+```javascript
+// SPDX-License-Identifier: MIT
+
+pragma solidity 0.6.11;
+import "@sovryn-zero/contracts/contracts/ActivePool.sol";
+import "@sovryn-zero/contracts/contracts/BorrowerOperations.sol";
+```  
 
 [comment]: #solidoc (Start)
 ### Contracts

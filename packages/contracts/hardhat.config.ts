@@ -1,6 +1,6 @@
+require("cryptoenv").parse();
 import { HardhatNetworkAccountsUserConfig, HardhatUserConfig } from "hardhat/types";
-import { task, /*HardhatUserConfig,*/ types, extendEnvironment } from "hardhat/config";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { task /*HardhatUserConfig,*/ } from "hardhat/config";
 import "@nomiclabs/hardhat-ethers";
 
 import "@nomicfoundation/hardhat-toolbox";
@@ -26,6 +26,7 @@ import "hardhat-contract-sizer";
 // import "tasks/sips/createSIP";
 
 import * as dotenv from "dotenv";
+// require("cryptoenv").parse(); //doesn't work with yarn workspaces
 // import "@nomicfoundation/hardhat-chai-matchers";
 // import "@tenderly/hardhat-tenderly";
 import "tsconfig-paths/register";
@@ -41,10 +42,13 @@ import "@nomiclabs/hardhat-etherscan";
 import "solidity-coverage";
 import "@primitivefi/hardhat-dodoc";
 
+import { extendEnvironment } from "hardhat/config";
+import { HardhatRuntimeEnvironment, HttpNetworkUserConfig } from "hardhat/types";
+
 // import * as tdly from "@tenderly/hardhat-tenderly";
 // tdly.setup();
 
-import "./tasks/sips/createSIP";
+import "./tasks";
 
 const accounts =
     process.env.ACC_QTY === "20"
@@ -114,6 +118,16 @@ task(
 
 task("check-redemption-hints", "Check redemption hints").setAction(async (taskAgrs, hre) => {
     const { ethers } = hre;
+    await hre.network.provider.request({
+        method: "hardhat_reset",
+        params: [
+            {
+                forking: {
+                    jsonRpcUrl: "https://mainnet-dev.sovryn.app/rpc",
+                },
+            },
+        ],
+    });
     const priceFeed = await hre.ethers.getContractAt(
         "PriceFeed",
         "0x6D1d9574d67e04cf35Fa1d916F763eDDae03b75d"
@@ -235,7 +249,7 @@ const config: HardhatUserConfig = {
             //allowUnlimitedContractSize, //EIP170 contrtact size restriction temporal testnet workaround
         },
         rskForkedTestnet: {
-            // e.g. hh node --fork https://testnet.sovryn.app/rpc --no-deploy --gasprice 66000000 --fork-block-number 5018378
+            // e.g. export ACC_QTY=20 && hh node --fork https://testnet.sovryn.app/rpc --no-deploy --gasprice 66000000 --fork-block-number 5018378
             chainId: 31337,
             accounts: testnetAccounts,
             url: "http://127.0.0.1:8545/",
@@ -257,6 +271,7 @@ const config: HardhatUserConfig = {
 
         /// MAINNETS
         rskSovrynMainnet: {
+            // e.g. export ACC_QTY=20 && hh node --fork https://mainnet-dev.sovryn.app/rpc --no-deploy --gasprice 66000000 --fork-block-number 5018378
             url: "https://mainnet-dev.sovryn.app/rpc",
             chainId: 30,
             accounts: mainnetAccounts,
@@ -264,10 +279,11 @@ const config: HardhatUserConfig = {
             timeout: 100000,
             gasPrice: 66000000,
             blockGasLimit: 6800000,
+            gas: "auto",
             //timeout: 20000, // increase if needed; 20000 is the default value
         },
         rskForkedMainnet: {
-            // npx hardhat node --fork https://mainnet-dev.sovryn.app/rpc --no-deploy --fork-block-number 5018378 --gasprice 66000000
+            // e.g. export ACC_QTY=20 && npx hardhat node --fork https://mainnet-dev.sovryn.app/rpc --no-deploy --fork-block-number 5018378 --gasprice 66000000
             chainId: 31337,
             accounts: mainnetAccounts,
             url: "http://127.0.0.1:8545",
@@ -351,6 +367,7 @@ const config: HardhatUserConfig = {
             rskForkedTestnet: [
                 "external/deployments/rskTestnet",
                 "deployment/deployments/rskSovrynTestnet",
+                "deployment/deployments/rskForkedTestnet",
             ],
             rskMainnet: [
                 "external/deployments/rskMainnet",
@@ -360,6 +377,7 @@ const config: HardhatUserConfig = {
             rskForkedMainnet: [
                 "external/deployments/rskMainnet",
                 "deployment/deployments/rskSovrynMainnet",
+                "deployment/deployments/rskForkedMainnet",
             ],
             rskForkedTestnetFlashback: ["external/deployments/rskForkedTestnetFlashback"],
             rskForkedMainnetFlashback: ["external/deployments/rskForkedMainnetFlashback"],

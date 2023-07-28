@@ -1,9 +1,6 @@
-import { ParamType } from "@ethersproject/abi";
-import { Contract } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import Logs from "node-logs";
-import { LiquityBaseParams, TroveManager } from "types/generated";
-import { LiquityBaseInterface } from "types/generated/artifacts/contracts/Dependencies/LiquityBase";
+import { TroveManager } from "types/generated";
 const logger = new Logs().showInConsole(true);
 
 export interface ISipArgument {
@@ -63,18 +60,12 @@ const zeroMyntIntegrationSIP = async (hre: HardhatRuntimeEnvironment): Promise<I
     const iSetImplementationInterface = new ethers.utils.Interface([
         "function setImplementation(address _implementation)",
     ]);
-    /*
-    const encodeParameters = (types, values) => {
-        const abi = new ethers.utils.AbiCoder();
-        return abi.encode(types, values);
-    };*/
 
     const datas = targetsContractProxies.map((val, index) => {
         return iSetImplementationInterface._abiCoder.encode(
             ["address"],
             [contractsImplementations[index]]
         );
-        //return encodeParameters(["address"], [contractsImplementations[index]]);
     });
     const signatures = Array(targetsContractProxies.length).fill("setImplementation(address)");
 
@@ -193,10 +184,108 @@ const sip0054And0055Combo = async (hre: HardhatRuntimeEnvironment): Promise<ISip
     return argsCombo;
 };
 
+const sip0061 = async (hre: HardhatRuntimeEnvironment): Promise<ISipArgument> => {
+    const {
+        ethers,
+        deployments: { get },
+    } = hre;
+
+    // @todo for the mainnet deployment first run `yarn deploy --tags 'StabilityPool,CommunityIssuance' --network rskSovrynMainnet`
+    const newStabilityPoolImplementation = (await get("StabilityPool_Implementation")).address;
+
+    const communityIssuanceAddress = (await get("CommunityIssuance_Proxy")).address;
+
+    console.log(`New stability pool implementation: ${newStabilityPoolImplementation}`);
+    console.log(`Community issuance address: ${communityIssuanceAddress}`);
+
+    const stabilityPoolProxyAddress = (await get("StabilityPool_Proxy")).address;
+
+    const args: ISipArgument = {
+        args: {
+            targets: [stabilityPoolProxyAddress, stabilityPoolProxyAddress],
+            values: [0, 0],
+            signatures: ["setImplementation(address)", "setCommunityIssuanceAddress(address)"],
+            data: [
+                ethers.utils.defaultAbiCoder.encode(["address"], [newStabilityPoolImplementation]),
+                ethers.utils.defaultAbiCoder.encode(["address"], [communityIssuanceAddress]),
+            ],
+            description:
+                "SIP-0061: Zero stability pool subsidies: https://github.com/DistributedCollective/SIPS/blob/cc1a368/SIP-0061.md, sha256: 9c38bb9e30855ef7fc2fba8a3a6b731182577ed8f5d5f5b18773ca528bde532b",
+        },
+        governorName: "GovernorOwner",
+    };
+
+    return args;
+};
+
+const zeroFeesUpdateSip0059 = async (hre: HardhatRuntimeEnvironment): Promise<ISipArgument> => {
+    const {
+        ethers,
+        deployments: { get },
+    } = hre;
+    const zeroBaseParams = await get("LiquityBaseParams");
+    const newBorrowingFeeFloorValue = ethers.utils.parseEther("0.05");
+    const newMaxBorrowingFee = ethers.utils.parseEther("0.075");
+    const newRedemptionFeeFloor = ethers.utils.parseEther("0.019");
+    const iSetFeesFloor = new ethers.utils.Interface([
+        "function setBorrowingFeeFloor(uint256)",
+        "function setMaxBorrowingFee(uint256)",
+        "function setRedemptionFeeFloor(uint256)",
+    ]);
+    const args: ISipArgument = {
+        args: {
+            targets: [zeroBaseParams.address, zeroBaseParams.address, zeroBaseParams.address],
+            values: [0, 0, 0],
+            signatures: [
+                "setBorrowingFeeFloor(uint256)",
+                "setMaxBorrowingFee(uint256)",
+                "setRedemptionFeeFloor(uint256)",
+            ],
+            data: [
+                iSetFeesFloor._abiCoder.encode(["uint256"], [newBorrowingFeeFloorValue]),
+                iSetFeesFloor._abiCoder.encode(["uint256"], [newMaxBorrowingFee]),
+                iSetFeesFloor._abiCoder.encode(["uint256"], [newRedemptionFeeFloor]),
+            ],
+            description:
+                "SIP-0059: Zero Fee Floor Update: March 22, Details: https://github.com/DistributedCollective/SIPS/blob/b22933f/SIP-0059.md, sha256: cf432a01b302b0c21b35f55c423d36233cf2f536a96a4d6cc97b2c5b5bb1fbda",
+        },
+        governorName: "GovernorOwner",
+    };
+
+    return args;
+};
+
+const sip0062 = async (hre: HardhatRuntimeEnvironment): Promise<ISipArgument> => {
+    // Updating REDEMPTION_FEE_FLOOR from 1.9% to 1%
+    const {
+        ethers,
+        deployments: { get },
+    } = hre;
+    const zeroBaseParams = await get("LiquityBaseParams");
+    const newRedemptionFeeFloor = ethers.utils.parseEther("0.01");
+    const iSetFeesFloor = new ethers.utils.Interface(["function setRedemptionFeeFloor(uint256)"]);
+    const args: ISipArgument = {
+        args: {
+            targets: [zeroBaseParams.address],
+            values: [0],
+            signatures: ["setRedemptionFeeFloor(uint256)"],
+            data: [iSetFeesFloor._abiCoder.encode(["uint256"], [newRedemptionFeeFloor])],
+            description:
+                "SIP-0062: Zero Fee Floor Update, May 12, Details: https://github.com/DistributedCollective/SIPS/blob/4fed4b8/SIP-0062.md, sha256: 566e57c2e98c848395b1b6b2d3718175ed592014a33e81c305947e5017b5925e",
+        },
+        governorName: "GovernorOwner",
+    };
+
+    return args;
+};
+
 const sipArgs = {
     zeroMyntIntegrationSIP,
     zeroFeesUpdate,
     sip0054And0055Combo,
+    sip0061,
+    zeroFeesUpdateSip0059,
+    sip0062,
 };
 
 export default sipArgs;
