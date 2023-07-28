@@ -7,9 +7,8 @@ import { useLiquity } from "../../hooks/LiquityContext";
 import { Badge } from "../Badge";
 import { fetchZeroPrice } from "./context/fetchZeroPrice";
 
-const selector = ({ zusdInStabilityPool, remainingStabilityPoolZEROReward }: LiquityStoreState) => ({
+const selector = ({ zusdInStabilityPool }: LiquityStoreState) => ({
   zusdInStabilityPool,
-  remainingStabilityPoolZEROReward
 });
 
 export const Yield: React.FC = () => {
@@ -18,10 +17,10 @@ export const Yield: React.FC = () => {
       connection: { addresses }
     }
   } = useLiquity();
-  const { zusdInStabilityPool, remainingStabilityPoolZEROReward } = useLiquitySelector(selector);
+  const { zusdInStabilityPool } = useLiquitySelector(selector);
 
   const [zeroPrice, setZeroPrice] = useState<Decimal | undefined>(undefined);
-  const hasZeroValue = remainingStabilityPoolZEROReward.isZero || zusdInStabilityPool.isZero;
+  const hasZeroValue = zusdInStabilityPool.isZero;
   const zeroTokenAddress = addresses["zeroToken"];
 
   useEffect(() => {
@@ -37,17 +36,17 @@ export const Yield: React.FC = () => {
 
   if (hasZeroValue || zeroPrice === undefined) return null;
 
-  const yearlyHalvingSchedule = 0.5; // 50% see ZERO distribution schedule for more info
-  const remainingZeroOneYear = remainingStabilityPoolZEROReward.mul(yearlyHalvingSchedule);
-  const remainingZeroOneYearInUSD = remainingZeroOneYear.mul(zeroPrice);
-  const aprPercentage = remainingZeroOneYearInUSD.div(zusdInStabilityPool).mul(100);
-  const remainingZeroInUSD = remainingStabilityPoolZEROReward.mul(zeroPrice);
+  // const yearlyHalvingSchedule = 0.5; // 50% see ZERO distribution schedule for more info
+  // const remainingZeroOneYear = remainingStabilityPoolZEROReward.mul(yearlyHalvingSchedule);
+  // const remainingZeroOneYearInUSD = remainingZeroOneYear.mul(zeroPrice);
+  // const aprPercentage = remainingZeroOneYearInUSD.div(zusdInStabilityPool).mul(100);
+  // const remainingZeroInUSD = remainingStabilityPoolZEROReward.mul(zeroPrice);
 
-  if (aprPercentage.isZero) return null;
+  // if (aprPercentage.isZero) return null;
 
   return (
     <Badge>
-      <Text>ZERO APR {aprPercentage.toString(2)}%</Text>
+      {/* <Text>ZERO APR {aprPercentage.toString(2)}%</Text> */}
       <InfoIcon
         tooltip={
           <Card variant="tooltip" sx={{ width: ["220px", "518px"] }}>
@@ -60,11 +59,11 @@ export const Yield: React.FC = () => {
               (($ZERO_REWARDS * YEARLY_DISTRIBUTION%) / DEPOSITED_ZUSD) * 100 ={" "}
               <Text sx={{ fontWeight: "bold" }}> APR</Text>
             </Paragraph>
-            <Paragraph sx={{ fontSize: "12px", fontFamily: "monospace" }}>
+            {/* <Paragraph sx={{ fontSize: "12px", fontFamily: "monospace" }}>
               ($
               {remainingZeroInUSD.shorten()} * 50% / ${zusdInStabilityPool.shorten()}) * 100 =
               <Text sx={{ fontWeight: "bold" }}> {aprPercentage.toString(2)}%</Text>
-            </Paragraph>
+            </Paragraph> */}
           </Card>
         }
       ></InfoIcon>
