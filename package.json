@@ -45,6 +45,7 @@
   "scripts": {
     "build": "run-s build:*",
     "build:dev-frontend": "yarn workspace @sovryn-zero/dev-frontend build",
+    "build:freezero-frontend": "yarn workspace @sovryn-zero/freezero-frontend build",
     "deploy": "yarn workspace @sovryn-zero/lib-ethers hardhat deploy",
     "docs": "run-s docs:*",
     "docs:collect-sdk-apis": "node scripts/collect-sdk-apis.js",
