@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useReducer, useState } from "react";
-import { Button, Text } from "theme-ui";
+import { Button, Box } from "theme-ui";
 
-import { shortenAddress } from "../utils/shortenAddress";
-import { useLocation } from "react-router-dom";
+// import { shortenAddress } from "../utils/shortenAddress";
+// import { useLocation } from "react-router-dom";
 // import { ConfirmPage } from "../pages/ConfirmPage";
 import { useConnectorContext } from "./Connector";
 
@@ -78,11 +78,9 @@ export const WalletConnector: React.FC<WalletConnectorProps> = ({ children, load
     isWalletConnected
   } = useConnectorContext();
   const [connectionState, dispatch] = useReducer(connectionReducer, { type: "inactive" });
-  const location = useLocation();
+  // const location = useLocation();
 
-  useEffect(() => {
-  
-  }, [isWalletConnected, walletAddress]);
+  useEffect(() => {}, [isWalletConnected, walletAddress]);
 
   useEffect(() => {
     if (isWalletConnected) {
@@ -92,7 +90,7 @@ export const WalletConnector: React.FC<WalletConnectorProps> = ({ children, load
     }
   }, [isWalletConnected]);
 
-  const onClick = useCallback(() => {
+  const onClickConnectWalletButton = useCallback(() => {
     if (isWalletConnected) {
       disconnectWallet();
     } else {
@@ -100,19 +98,17 @@ export const WalletConnector: React.FC<WalletConnectorProps> = ({ children, load
     }
   }, [isWalletConnected, disconnectWallet, connectWallet]);
 
-  // if (loading) {
-  //   return <>{loader}</>;
-  // }
-
-
   if (connectionState.type === "active") {
     return <>{children}</>;
   }
 
   return (
     <>
+      <Box p={4} color="background" bg="primary">
+        FreeZero is currently in beta. Use at your own risk. Connect Wallet To Access Zero Protocol
+      </Box>
       <Button
-        onClick={onClick}
+        onClick={onClickConnectWalletButton}
         sx={{
           width: "174px",
           height: "40px",
@@ -120,44 +116,8 @@ export const WalletConnector: React.FC<WalletConnectorProps> = ({ children, load
         }}
         data-action-id="zero-landing-connectWallet"
       >
-        {!walletAddress ? (
-          "Connect Wallet"
-        ) : (
-          <Text as="span" sx={{ fontSize: 2, fontWeight: 600 }}>
-            {shortenAddress(walletAddress!, 4)}
-          </Text>
-        )}
+        Connect Wallet
       </Button>
-
-      <Text
-        as="p"
-        sx={{
-          fontSize: 2,
-          fontWeight: 600,
-          color: "danger",
-          mt: 12,
-          visibility: "visible"
-          // visibility: !loading ? "visible" : "hidden"
-        }}
-      >
-        {/* {!walletAddress && hasClicked && (
-          <>
-            Install or unlock an{" "}
-            <Link
-              sx={{
-                fontSize: 2,
-                fontWeight: 600,
-                textDecoration: "underline",
-                color: "danger"
-              }}
-              target="_blank"
-              href="https://wiki.sovryn.app/en/getting-started/wallet-setup"
-            >
-              RSK-compatible Web3 wallet.
-            </Link>
-          </>
-        )} */}
-      </Text>
     </>
   );
 };
