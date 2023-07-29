@@ -19,14 +19,9 @@ export const Header: React.FC<Props> = ({ hideDetails }) => {
   }, []);
 
   return (
-    <Container variant="header">
-      <Box sx={{ flex: [null, null, null, null, 1] }}>
-        <NavLink href={sovrynLink}>
-          <Icon name="chevron-left" />
-        </NavLink>
-      </Box>
+    <Container variant="header">      
       <Box sx={{ display: "flex", width: [150, 150, "auto"] }}>
-        <SovLogo />
+        {/* <SovLogo /> */}
       </Box>
       {!hideDetails && (
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "end", flex: 1 }}>
