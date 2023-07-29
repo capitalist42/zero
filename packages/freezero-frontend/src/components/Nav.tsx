@@ -19,17 +19,17 @@ export const Nav: React.FC = () => {
         <Image
           sx={{ height: 40, pr: 20 }}
           src={process.env.PUBLIC_URL + "/images/zerologo.svg"}
-          alt="Zero"
+          alt="FreeZero"
         />
-        <Link to="/zero" data-action-id="zero-menu-dashboard">
+        <Link to="/" data-action-id="zero-menu-dashboard">
           Dashboard
         </Link>
-        <Link to="/zero/liquidation" data-action-id="zero-menu-liquidation">
+        <Link to="/liquidation" data-action-id="zero-menu-liquidation">
           Liquidation
         </Link>
-        {/* <Link to="/zero/redemption" data-action-id="zero-menu-redemption">
+        <Link to="/redemption" data-action-id="zero-menu-redemption">
           Redemption
-        </Link> */}
+        </Link>
       </Flex>
       <Flex sx={{ alignItems: "center", flexDirection: ["column", "row"] }}>
         <NavLink
