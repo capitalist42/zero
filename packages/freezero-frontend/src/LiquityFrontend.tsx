@@ -16,6 +16,7 @@ import { TroveViewProvider } from "./components/Trove/context/TroveViewProvider"
 import { StabilityViewProvider } from "./components/Stability/context/StabilityViewProvider";
 import { Nav } from "./components/Nav";
 import { Dashboard } from "./pages/Dashboard";
+import { RedemptionPage } from "./pages/RedemptionPage";
 
 type LiquityFrontendProps = {
   loader?: React.ReactNode;
@@ -50,15 +51,15 @@ export const LiquityFrontend: React.FC<LiquityFrontendProps> = ({ loader }) => {
                 alignItems: "center"
               }}
             >
-              <Route path="/zero" exact>
+              <Route path="/" exact>
                 <Dashboard />
               </Route>
-              <Route path="/zero/liquidation">
+              <Route path="/liquidation">
                 <RiskyTrovesPage />
               </Route>
-              {/* <Route path="/zero/redemption">
+              <Route path="/redemption">
                   <RedemptionPage />
-                </Route> */}
+                </Route>
             </Container>
           </Flex>
         </StabilityViewProvider>
